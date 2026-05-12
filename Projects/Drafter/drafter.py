@@ -1,3 +1,5 @@
+import os
+
 from typing import Annotated, Sequence, TypedDict
 from langchain_core.messages import BaseMessage, SystemMessage, ToolMessage, HumanMessage
 from langchain_core.tools import tool
@@ -25,6 +27,10 @@ def update(content: str) -> str:
     global document_content
     document_content = content
 
+    if document_content:
+
+        print(f"\n📃 Updated Document: {document_content}")
+
     return document_content
 
 @tool
@@ -43,11 +49,13 @@ def save(filename: str) -> str:
             global document_content
             file.write(document_content)
 
-            return f"Document has been saved successfully to {filename}"
+            print(f"\n🗄️ Document has been saved successfully to {filename}")
+            return f"\n🗄️ Document has been saved successfully to {filename}"
 
     except Exception as e:
 
-        return f"Error saving document: {e}"
+        print(f"\n🌋 Error saving document: {e}")
+        return f"\n🌋 Error saving document: {e}"
     
 
 tools = [update,
@@ -66,13 +74,16 @@ def agent(state: AgentState) -> AgentState:
         content = f"""
         You are Drafter, a helpful writing assistant. You are going to help the user update and modify documents
 
+        - When writing content, use proper line breaks and paragraphs for readability
         - If the user wants to updater or modify content, use the 'update' tool with the complete updated content
         - If the user wants to save and finish, you need to use the 'save' tool.
-        - Make sure to always show the current document state after modifications.
+        - Make sure to always show the current document state after modifications.c
 
         The current document content is: {document_content}
         """
     )
+
+    print(f"\n{os.get_terminal_size().columns * "="}\n")
 
     if not state['messages']:
 
@@ -89,7 +100,7 @@ def agent(state: AgentState) -> AgentState:
 
     response = llm.invoke(all_messages)
 
-    print("\n🤖 AI:{response.content}")
+    print(f"\n🤖 AI:{response.content}")
 
     if hasattr(response, "tool_calls") and response.tool_calls:
 
@@ -104,3 +115,62 @@ def should_continue(state: AgentState):
     if not state['messages']:
 
         return "continue"
+    
+    for message in reversed(state['messages']):
+
+        if((isinstance(message, ToolMessage)) and
+        "saved" in message.content.lower() and
+        "document" in message.content.lower()):
+            
+            return "end"
+        
+    return "continue"
+
+
+graph = StateGraph(AgentState)
+
+
+graph.add_node("agent", agent)
+graph.add_node("tools", ToolNode(tools=tools))
+
+graph.add_edge(START, "agent")
+graph.add_edge("agent", "tools")
+
+graph.add_conditional_edges(
+    "tools",
+    should_continue,
+    
+    {
+        "continue": "agent",
+        "end": END
+    }
+)
+
+app = graph.compile()
+
+def print_title(title):
+
+    columns = os.get_terminal_size().columns
+    half_screen = columns // 2 
+
+    space_around_title = 4
+    title_len = len(title) // 2 + space_around_title
+    penalty = 0
+
+    content_len = ((half_screen*2) - (title_len*2)) + (space_around_title*2) + (len(title))
+
+    if not content_len <= columns: penalty = content_len - columns
+                
+    print(f"\n{(half_screen - title_len) * "="}{space_around_title * ' '}{title.upper()}{space_around_title * ' '}{(half_screen - title_len - penalty) * "="}\n\n" )
+
+print_title("drafter")
+
+try:
+
+    response = app.invoke(AgentState(messages=[]), stream_mode="values")
+
+except Exception as e:
+
+    print(f"Error: {e}")
+
+print_title("drafter finished")
