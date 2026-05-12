@@ -1,23 +1,28 @@
 
-human:   hi
+human:    hi
 
-AI:   It's nice to meet you. Is there something I can help you with or would you like to chat?
+AI:    It's nice to meet you. Is there something I can help you with or would you like to chat?
 
-human:   my name is bakar
+human:    my name is bakar
 
-AI:   Nice to meet you, Bakar. It's a pleasure to chat with you. How's your day going so far?
+AI:    Nice to meet you, Bakar. It's a pleasure to chat with you. How's your day going so far?
 
-human:  what is my name
+human:   what is my name
 
-AI:  Your name is Bakar.
+AI:   Your name is Bakar.
 
-human:  great I am 20 years old
+human:   great I am 20 years old
 
-AI:  You're 20 years old, Bakar. That's a great age, full of possibilities and opportunities. What are you studying or working on these days?
-human: give me details about me
-AI: Based on our conversation, here's what I know about you:
+AI:   You're 20 years old, Bakar. That's a great age, full of possibilities and opportunities. What are you studying or working on these days?
 
-1. **Your name**: Bakar
-2. **Your age**: 20 years old
+human:  give me details about me
 
-That's all I know about you so far. If you'd like to share more, I'd be happy to learn more about you. What are your interests, hobbies, or passions?
+AI:  Based on our conversation, here's what I know about you:
+
+human: hi
+AI: Hi again, Bakar. I was just about to give you the details about yourself. Here they are:
+
+* Your name is Bakar.
+* You are 20 years old.
+
+That's all I know about you so far. If you'd like to share more, I'm all ears!
